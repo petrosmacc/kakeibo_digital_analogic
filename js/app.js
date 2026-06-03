@@ -86,10 +86,25 @@ function render() {
     const appDiv = document.getElementById('app');
     const metricas = calcularMetricas();
 
+    // Calcula início e fim da semana (Segunda a Domingo)
+    const hoje = new Date();
+    const diaDaSemana = hoje.getDay(); // 0 (Dom) a 6 (Sab)
+    const diffParaSegunda = (diaDaSemana === 0 ? -6 : 1) - diaDaSemana;
+    
+    const dataInicio = new Date(hoje);
+    dataInicio.setDate(hoje.getDate() + diffParaSegunda);
+    
+    const dataFim = new Date(dataInicio);
+    dataFim.setDate(dataInicio.getDate() + 6);
+
+    const fmt = { day: '2-digit', month: 'short' };
+    const dataInicioFormatada = dataInicio.toLocaleDateString('pt-BR', fmt);
+    const dataFimFormatada = dataFim.toLocaleDateString('pt-BR', fmt);
+
     appDiv.innerHTML = `
         <header class="app-header">
-            <h1>Kakeibo Digital <span>家計簿</span></h1>
-            <p class="subtitle">Semana ${state.semanaAtual} de ${state.anoAtual}</p>
+            <h1>Kakebo Digital <span>家計簿</span></h1>
+            <p class="subtitle">Semana ${state.semanaAtual} | ${dataInicioFormatada} a ${dataFimFormatada} de ${state.anoAtual}</p>
         </header>
 
         <main class="container">
