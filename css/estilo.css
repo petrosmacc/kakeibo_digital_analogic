@@ -1,0 +1,267 @@
+/* Estilo Geral inspirado em Caderno de Papel Japonês (Kakeibo) */
+:root {
+    --bg-color: #f5f0e8; /* Tom de papel envelhecido */
+    --card-bg: #fcfaf7;
+    --text-color: #2c2c2c;
+    --primary-color: #b83b30; /* Vermelho japonês */
+    --secondary-color: #4a6b5d; /* Verde musgo */
+    --border-color: #dcd3c4;
+    --shadow-color: rgba(0, 0, 0, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Courier New', Courier, monospace, Georgia, serif;
+    line-height: 1.6;
+    padding: 20px 10px;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Cabeçalho */
+.app-header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 2px double var(--primary-color);
+    padding-bottom: 15px;
+}
+
+.app-header h1 {
+    font-size: 2rem;
+    color: var(--primary-color);
+}
+
+.app-header h1 span {
+    font-size: 1.2rem;
+    display: block;
+    font-weight: normal;
+    letter-spacing: 4px;
+}
+
+.app-header .subtitle {
+    font-style: italic;
+    color: #666;
+}
+
+/* Cards */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 2px 2px 8px var(--shadow-color);
+}
+
+.card h2 {
+    font-size: 1.2rem;
+    border-bottom: 1px dashed var(--primary-color);
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+}
+
+/* Métricas */
+.grid-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.metric-box {
+    border: 1px solid var(--border-color);
+    padding: 10px;
+    text-align: center;
+    background: #fff;
+}
+
+.metric-box.highlight {
+    background-color: #fdf6e2;
+    border-color: #e6c280;
+}
+
+.metric-box .label {
+    font-size: 0.8rem;
+    display: block;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.metric-box .value {
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+.color-save {
+    color: var(--secondary-color);
+}
+
+.color-expense {
+    color: var(--primary-color);
+}
+
+/* Barra de Progresso */
+.weekly-status {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.weekly-status h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.progress-bar-container {
+    background: #e0e0e0;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-bar {
+    background: var(--primary-color);
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+/* Formulários */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid var(--border-color);
+    background-color: #fff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    border-radius: 2px;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.flex-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.flex-form .form-group {
+    flex: 1;
+    min-width: 150px;
+    margin-bottom: 0;
+}
+
+.grid-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+/* Botões */
+.btn {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background-color: #3a5348;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-delete {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-left: 10px;
+    line-height: 1;
+}
+
+/* Listas */
+.list-items {
+    list-style: none;
+    margin-top: 15px;
+}
+
+.list-items li {
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tag {
+    background: #eae3d2;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    border-radius: 3px;
+    margin-right: 8px;
+}
+
+.date-label {
+    font-size: 0.75rem;
+    color: #888;
+    display: block;
+}
+
+.empty-msg {
+    font-style: italic;
+    color: #888;
+    text-align: center;
+}
+
+/* Reflexões */
+.reflexoes-list {
+    margin-top: 15px;
+}
+
+.reflexao-item {
+    background: #fff;
+    border-left: 3px solid var(--primary-color);
+    padding: 10px;
+    margin-bottom: 10px;
+    font-style: italic;
+}
