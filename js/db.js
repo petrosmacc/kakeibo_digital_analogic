@@ -13,7 +13,7 @@ db.version(1).stores({
 });
 
 // Função de Seed para popular as categorias iniciais do Kakeibo
-async function seedCategorias() {
+export async function seedCategorias() {
     const count = await db.categorias.count();
     if (count === 0) {
         const categoriasIniciais = [
@@ -26,9 +26,6 @@ async function seedCategorias() {
         console.log('Categorias iniciais do Kakeibo cadastradas com sucesso!');
     }
 }
-
-// Executa o seed assim que o banco de dados for aberto
-db.on('ready', seedCategorias);
 
 // --- FUNÇÕES EXPORTADAS ---
 
