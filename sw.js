@@ -40,6 +40,12 @@ self.addEventListener('activate', (event) => {
 
 // Evento Fetch: Estratégia Cache-First (Tenta cache, se não encontrar vai para a rede)
 self.addEventListener('fetch', (event) => {
+    // Ignora requisições que não sejam HTTP ou HTTPS (como extensões do navegador)
+    const url = new URL(event.request.url);
+    if (!url.protocol.startsWith('http')) {
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then((cachedResponse) => {
@@ -63,7 +69,6 @@ self.addEventListener('fetch', (event) => {
 
                     return networkResponse;
                 }).catch(() => {
-                    // Opcional: Retornar uma página offline genérica se a rede falhar e não estiver no cache
                     console.log('Falha ao buscar recurso e sem conexão de rede.');
                 });
             })
