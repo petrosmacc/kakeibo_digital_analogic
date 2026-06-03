@@ -82,14 +82,11 @@ export async function addReflexao(reflexao) {
     return await db.reflexoes.add(novaReflexao);
 }
 
-// Retorna as reflexões (opcionalmente filtradas por semana e ano)
-export async function getReflexoes(semana = null, ano = null) {
-    if (semana !== null && ano !== null) {
-        return await db.reflexoes
-            .where({ semana: Number(semana), ano: Number(ano) })
-            .toArray();
-    }
-    return await db.reflexoes.toArray();
+// Retorna as reflexões filtradas por semana e ano
+export async function getReflexoes(semana, ano) {
+    return await db.reflexoes
+        .where({ semana: Number(semana), ano: Number(ano) })
+        .toArray();
 }
 
 // Adiciona um novo gasto fixo
