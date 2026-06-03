@@ -1,0 +1,9 @@
+{
+  "name": "Kakebo Digital",
+  "short_name": "Kakebo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#4a3b32",
+  "icons": []
+}
