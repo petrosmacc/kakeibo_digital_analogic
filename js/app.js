@@ -8,7 +8,8 @@ import {
     getReflexoes,
     addGastoFixo,
     getGastosFixos,
-    updateGastoFixo
+    updateGastoFixo,
+    seedCategorias
 } from './db.js';
 import db from './db.js'; // Importa a instância padrão para operações extras como exclusão
 
@@ -37,6 +38,9 @@ function getNumeroSemana(d) {
 
 // Inicialização do App
 async function init() {
+    await db.open();
+    await seedCategorias();
+
     state.semanaAtual = getNumeroSemana(new Date());
     state.anoAtual = new Date().getFullYear();
 
@@ -47,6 +51,7 @@ async function init() {
     
     await atualizarDados();
     render();
+    console.log("Kakebo Digital pronto");
 }
 
 // Atualiza dados dinâmicos do banco
