@@ -49,7 +49,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request)
             .then((cachedResponse) => {
-                // Se o arquivo estiver no cache, retorna ele
+                // Se o arquivo estiver no cache, retorna ele (Cache-First)
                 if (cachedResponse) {
                     return cachedResponse;
                 }
