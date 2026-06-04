@@ -62,8 +62,8 @@ function obterTotaisPorCategoria(gastos, categorias) {
 
 // Mapeamento de cores fixas por nome de categoria
 const coresCategoria = {
-    'Sobrevivência': '#8B7355',
-    'Opção': '#A0522D',
+    'Essencial': '#8B7355',
+    'Lazer': '#A0522D',
     'Cultura': '#6B8E6B',
     'Extra': '#C4A882'
 };

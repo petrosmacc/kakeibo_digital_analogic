@@ -131,19 +131,28 @@ function renderApp() {
         </div>
     `;
 
-    // Botão de alternância de tema (paleta)
-    const temaBtn = document.createElement('button');
-    temaBtn.className = 'btn-tema';
-    temaBtn.textContent = '🎨';
-    temaBtn.title = 'Alternar tema';
-    temaBtn.addEventListener('click', () => {
-        const temas = ['claro', 'escuro', 'sepia'];
-        const idx = temas.indexOf(state.tema);
-        state.tema = temas[(idx + 1) % temas.length];
+    // Seletor textual de tema (canto superior direito)
+    const temaSelector = document.createElement('div');
+    temaSelector.className = 'tema-selector';
+    temaSelector.innerHTML = `
+        <span class="tema-opcao ${state.tema === 'escuro' ? 'ativo' : ''}" data-tema="escuro">escuro</span>
+        <span class="tema-separador">|</span>
+        <span class="tema-opcao ${state.tema === 'sepia' ? 'ativo' : ''}" data-tema="sepia">sépia</span>
+    `;
+    temaSelector.addEventListener('click', (e) => {
+        const opcao = e.target.closest('.tema-opcao');
+        if (!opcao) return;
+        const temaClicado = opcao.dataset.tema;
+        // Se clicar no já ativo, volta para claro
+        if (temaClicado === state.tema) {
+            state.tema = 'claro';
+        } else {
+            state.tema = temaClicado;
+        }
         localStorage.setItem('tema', state.tema);
         renderApp();
     });
-    appDiv.prepend(temaBtn);
+    appDiv.prepend(temaSelector);
 
     // Event listeners dos botões de navegação
     document.querySelectorAll('.btn-nav').forEach(btn => {

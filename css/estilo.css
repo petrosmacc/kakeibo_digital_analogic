@@ -20,16 +20,16 @@ body.tema-claro {
 /* Tema escuro */
 body.tema-escuro {
     --bg-color: #2C2C2C;
-    --text-color: #E0D5C5;
+    --text-color: #F0E6D3;
     --card-bg: #3A3A3A;
-    --border-color: #555;
+    --border-color: #5A5A5A;
 }
 
 /* Tema sépia */
 body.tema-sepia {
     --bg-color: #F4ECD8;
-    --text-color: #5C4A3A;
-    --card-bg: #FAF3E6;
+    --text-color: #4A3B32;
+    --card-bg: #FDF8F0;
     --border-color: #C4B5A5;
 }
 
@@ -444,20 +444,36 @@ input:focus, select:focus, textarea:focus {
     border-left: 4px solid var(--secondary-color);
 }
 
-/* Botão de alternância de tema */
-.btn-tema {
+/* Seletor textual de tema */
+.tema-selector {
     position: fixed;
     top: 10px;
     right: 10px;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    cursor: pointer;
     z-index: 1000;
-    opacity: 0.7;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tema-opcao {
+    color: var(--text-color);
+    opacity: 0.6;
     transition: opacity 0.2s;
 }
 
-.btn-tema:hover {
+.tema-opcao.ativo {
+    font-weight: bold;
     opacity: 1;
+    text-decoration: underline;
+}
+
+.tema-opcao:hover {
+    opacity: 0.9;
+}
+
+.tema-separador {
+    color: var(--text-color);
+    opacity: 0.4;
+    margin: 0 4px;
 }

@@ -17,8 +17,8 @@ export async function seedCategorias() {
     const count = await db.categorias.count();
     if (count === 0) {
         const categoriasIniciais = [
-            { nome: 'Sobrevivência', icone: '🏠', tipo: 'despesa' },
-            { nome: 'Opção', icone: '☕', tipo: 'despesa' },
+            { nome: 'Essencial', icone: '🏠', tipo: 'despesa' },
+            { nome: 'Lazer', icone: '☕', tipo: 'despesa' },
             { nome: 'Cultura', icone: '🎭', tipo: 'despesa' },
             { nome: 'Extra', icone: '🎁', tipo: 'despesa' }
         ];
