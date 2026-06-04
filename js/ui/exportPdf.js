@@ -31,58 +31,60 @@ export function exportarTemplateSemanal(state) {
     doc.text('Preencha ao longo do dia e transfira para o digital ao final do dia.', pageWidth / 2, margin + 16, { align: 'center' });
     doc.text('Dica: use cores – vermelho para totais, azul/preto para gastos normais.', pageWidth / 2, margin + 22, { align: 'center' });
 
-    // Categorias com nomes por extenso
+    // Categorias renomeadas
     const categorias = [
-        'Sobrevivência',
-        'Opção',
+        'Essencial',
+        'Lazer',
         'Cultura',
-        'Extraordinário'
+        'Presentes & Imprevistos'
     ];
     const diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
     // Tabela ocupando ~80% da altura útil
     const startX = margin;
-    const startY = margin + 30;
-    const colWidth = contentWidth / 8; // 7 dias + coluna de nomes
-    const rowHeight = (contentHeight * 0.8 - 30) / (categorias.length + 1); // altura para 4 linhas + linha total
+    const startY = margin + 24; // ~0,5cm abaixo do subtítulo
+    const colWidthCategoria = 40; // largura fixa para coluna de categorias
+    const colWidthDia = (contentWidth - colWidthCategoria) / 7; // largura para cada dia
+    const rowHeight = (contentHeight * 0.8 - 24) / (categorias.length + 1); // altura para 4 linhas + linha total
     const totalRowHeight = rowHeight * 0.6; // linha de total mais compacta
 
-    // Cabeçalho dos dias
-    doc.setFontSize(10);
+    // Cabeçalho dos dias (alinhado centralmente sobre as células)
+    doc.setFontSize(9);
     doc.setFont('Courier', 'bold');
     doc.text('', startX, startY); // célula vazia para nomes
     diasSemana.forEach((dia, idx) => {
-        doc.text(dia, startX + colWidth * (idx + 1), startY);
+        const x = startX + colWidthCategoria + colWidthDia * idx + colWidthDia / 2;
+        doc.text(dia, x, startY, { align: 'center' });
     });
 
     // Linhas de categorias com nomes por extenso
     doc.setFont('Courier', 'bold');
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     categorias.forEach((nome, catIdx) => {
         const y = startY + rowHeight * (catIdx + 1);
-        // Nome da categoria na primeira coluna
+        // Nome da categoria na primeira coluna (com largura fixa)
         doc.text(nome, startX + 2, y - 2);
         // Células vazias para cada dia
         diasSemana.forEach((_, diaIdx) => {
-            const x = startX + colWidth * (diaIdx + 1);
-            doc.rect(x, y - 10, colWidth, rowHeight);
+            const x = startX + colWidthCategoria + colWidthDia * diaIdx;
+            doc.rect(x, y - 10, colWidthDia, rowHeight);
         });
         // Borda da coluna de nomes
-        doc.rect(startX, y - 10, colWidth, rowHeight);
+        doc.rect(startX, y - 10, colWidthCategoria, rowHeight);
     });
 
     // Linha de totais diários (borda mais escura)
     const yTotal = startY + rowHeight * (categorias.length + 1);
     doc.setFont('Courier', 'bold');
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.text('Total', startX + 2, yTotal - 2);
     diasSemana.forEach((_, diaIdx) => {
-        const x = startX + colWidth * (diaIdx + 1);
+        const x = startX + colWidthCategoria + colWidthDia * diaIdx;
         doc.setDrawColor(0, 0, 0);
         doc.setLineWidth(0.8);
-        doc.rect(x, yTotal - 10, colWidth, totalRowHeight);
+        doc.rect(x, yTotal - 10, colWidthDia, totalRowHeight);
     });
-    doc.rect(startX, yTotal - 10, colWidth, totalRowHeight);
+    doc.rect(startX, yTotal - 10, colWidthCategoria, totalRowHeight);
 
     // Espaço "Anotações" (apenas título, sem grade)
     const yAnotacoes = yTotal + totalRowHeight + 8;
