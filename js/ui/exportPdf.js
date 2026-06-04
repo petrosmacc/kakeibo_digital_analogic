@@ -3,11 +3,11 @@ function formatarValor(valor) {
     return 'R$ ' + valor.toFixed(2).replace('.', ',');
 }
 
-// Exporta template semanal em PDF (paisagem A4) – modelo em branco para preenchimento manual
+// Exporta template semanal em PDF (retrato A4) – modelo minimalista para preenchimento manual
 export function exportarTemplateSemanal(state) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
-        orientation: 'landscape',
+        orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
     });
@@ -15,85 +15,79 @@ export function exportarTemplateSemanal(state) {
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
 
-    // Título
+    // Margens de 1,5cm
+    const margin = 15;
+    const contentWidth = pageWidth - 2 * margin;
+    const contentHeight = pageHeight - 2 * margin;
+
+    // Título centralizado
     doc.setFontSize(14);
     doc.setFont('Courier', 'bold');
-    doc.text(`Kakebo Digital – Template Semanal (Semana ${state.semanaAtual} de ${state.anoAtual})`, pageWidth / 2, 15, { align: 'center' });
+    doc.text(`Kakebo – Semana ${state.semanaAtual} de ${state.anoAtual}`, pageWidth / 2, margin + 8, { align: 'center' });
 
-    // Subtítulo
-    doc.setFontSize(10);
+    // Linhas de instrução
+    doc.setFontSize(9);
     doc.setFont('Courier', 'italic');
-    doc.text('Preencha ao longo do dia e transfira para o digital ao final do dia.', pageWidth / 2, 22, { align: 'center' });
+    doc.text('Preencha ao longo do dia e transfira para o digital ao final do dia.', pageWidth / 2, margin + 16, { align: 'center' });
+    doc.text('Dica: use cores – vermelho para totais, azul/preto para gastos normais.', pageWidth / 2, margin + 22, { align: 'center' });
 
-    // Categorias (4 linhas)
-    const categorias = state.categorias; // array de objetos { id, nome, icone }
+    // Ícones das categorias (apenas ícones)
+    const icones = ['🏠', '☕', '🎭', '🎁'];
     const diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
     // Tabela
-    const startX = 15;
-    const startY = 32;
-    const colWidth = (pageWidth - 30) / 8; // 7 dias + coluna de categoria
-    const rowHeight = 18; // altura confortável ~2cm
+    const startX = margin;
+    const startY = margin + 30;
+    const colWidth = contentWidth / 8; // 7 dias + coluna de ícones
+    const rowHeight = 18; // ~2cm
 
-    // Cabeçalho
+    // Cabeçalho dos dias
     doc.setFontSize(10);
     doc.setFont('Courier', 'bold');
-    doc.text('Categoria', startX, startY);
+    doc.text('', startX, startY); // célula vazia para ícones
     diasSemana.forEach((dia, idx) => {
         doc.text(dia, startX + colWidth * (idx + 1), startY);
     });
 
-    // Linhas de categorias (células vazias)
+    // Linhas de categorias (apenas ícones)
     doc.setFont('Courier', 'normal');
-    categorias.forEach((cat, catIdx) => {
+    icones.forEach((icone, catIdx) => {
         const y = startY + rowHeight * (catIdx + 1);
-        doc.text(`${cat.icone} ${cat.nome}`, startX, y);
-        // Desenha bordas das células
+        // Ícone na primeira coluna
+        doc.setFontSize(20);
+        doc.text(icone, startX + 2, y - 2);
+        doc.setFontSize(10);
+        // Células vazias para cada dia
         diasSemana.forEach((_, diaIdx) => {
             const x = startX + colWidth * (diaIdx + 1);
-            doc.rect(x - 2, y - 10, colWidth - 2, rowHeight);
+            doc.rect(x, y - 10, colWidth, rowHeight);
         });
-        // Borda da coluna de categoria
-        doc.rect(startX - 2, y - 10, colWidth - 2, rowHeight);
+        // Borda da coluna de ícone
+        doc.rect(startX, y - 10, colWidth, rowHeight);
     });
 
-    // Linha de totais diários
-    const yTotal = startY + rowHeight * (categorias.length + 1);
+    // Linha de totais diários (borda mais escura)
+    const yTotal = startY + rowHeight * (icones.length + 1);
     doc.setFont('Courier', 'bold');
-    doc.text('Total do dia', startX, yTotal);
+    doc.setFontSize(10);
+    doc.text('Total', startX + 2, yTotal - 2);
     diasSemana.forEach((_, diaIdx) => {
         const x = startX + colWidth * (diaIdx + 1);
-        doc.rect(x - 2, yTotal - 10, colWidth - 2, rowHeight);
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.8);
+        doc.rect(x, yTotal - 10, colWidth, rowHeight);
     });
-    doc.rect(startX - 2, yTotal - 10, colWidth - 2, rowHeight);
+    doc.rect(startX, yTotal - 10, colWidth, rowHeight);
 
-    // Linha de total da semana por categoria
-    const yTotalCat = yTotal + rowHeight;
-    doc.setFont('Courier', 'bold');
-    doc.text('Total da semana por categoria', startX, yTotalCat);
-    // Célula mesclada para cada categoria (apenas uma célula grande)
-    const larguraMesclada = colWidth * 7;
-    doc.rect(startX + colWidth - 2, yTotalCat - 10, larguraMesclada, rowHeight);
-
-    // Espaço para reflexão
-    const yReflexao = yTotalCat + rowHeight + 10;
-    doc.setFont('Courier', 'bold');
+    // Espaço "Notas" (retângulo vazio ocupando o restante da folha)
+    const yNotas = yTotal + rowHeight + 8;
+    const notasHeight = contentHeight - (yNotas - margin);
     doc.setFontSize(11);
-    doc.text('Reflexão da semana:', startX, yReflexao);
-    doc.setFont('Courier', 'normal');
-    doc.setFontSize(10);
-    // Linhas pautadas
-    const lineHeight = 6;
-    const numLinhas = 6;
-    for (let i = 0; i < numLinhas; i++) {
-        const y = yReflexao + 8 + i * lineHeight;
-        doc.line(startX, y, pageWidth - 15, y);
-    }
-
-    // Rodapé
-    doc.setFontSize(8);
-    doc.setFont('Courier', 'italic');
-    doc.text('Dica: use cores diferentes para totais – vermelho para totais diários, azul para gastos normais. Isso ajuda na visualização.', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.setFont('Courier', 'bold');
+    doc.text('Notas', startX, yNotas);
+    doc.setDrawColor(150, 150, 150);
+    doc.setLineWidth(0.5);
+    doc.rect(startX, yNotas + 4, contentWidth, notasHeight - 4);
 
     // Salvar
     doc.save(`kakebo-template-semana-${state.semanaAtual}-${state.anoAtual}.pdf`);
