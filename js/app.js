@@ -12,8 +12,7 @@ import {
     seedCategorias
 } from './db.js';
 import db from './db.js'; 
-import { renderMesa } from './ui/mesaView.js';
-import { renderSalaReflexao } from './ui/salaReflexaoView.js';
+import { renderMesa, setupMesaListeners } from './ui/mesaView.js';
 import { renderGraficos } from './ui/graficos.js';
 
 // Estado global simples da aplicação
@@ -27,7 +26,9 @@ const state = {
     gastosFixos: [],
     reflexoes: [],
     semanaAtual: 1,
-    anoAtual: new Date().getFullYear()
+    anoAtual: new Date().getFullYear(),
+    telaAtiva: 'mesa',
+    periodoReflexao: 'semana'
 };
 
 // Função auxiliar para obter o número da semana do ano
@@ -53,7 +54,7 @@ async function init() {
     state.config.meta_poupanca = Number(await getConfig('meta_poupanca')) || 0;
     
     await atualizarDados();
-    render();
+    renderApp();
     console.log("Kakebo Digital pronto");
 }
 
@@ -84,119 +85,52 @@ function calcularMetricas() {
     };
 }
 
-// Renderização da Interface
-function render() {
+// Placeholder para Sala de Reflexão
+function renderSalaReflexao(state) {
+    return `<section class="card"><h2>Sala de Reflexão</h2><p class="empty-msg">Sala de Reflexão em construção</p></section>`;
+}
+
+// Renderização principal com navegação
+function renderApp() {
     const appDiv = document.getElementById('app');
     const metricas = calcularMetricas();
 
-    const mesaHTML = renderMesa(state, metricas);
-    const reflexaoHTML = renderSalaReflexao(state);
-    const graficosHTML = renderGraficos(state);
+    const navHTML = `
+        <nav class="app-nav">
+            <button class="btn btn-nav ${state.telaAtiva === 'mesa' ? 'active' : ''}" data-tela="mesa">📝 Mesa</button>
+            <button class="btn btn-nav ${state.telaAtiva === 'sala' ? 'active' : ''}" data-tela="sala">🧘 Sala</button>
+        </nav>
+    `;
+
+    let conteudoHTML = '';
+    if (state.telaAtiva === 'mesa') {
+        conteudoHTML = renderMesa(state, metricas);
+    } else {
+        conteudoHTML = renderSalaReflexao(state);
+    }
 
     appDiv.innerHTML = `
-        ${mesaHTML}
-        <div class="container">
-            ${graficosHTML}
-            ${reflexaoHTML}
+        ${navHTML}
+        <div id="conteudo">
+            ${conteudoHTML}
         </div>
     `;
 
-    setupEventListeners();
-}
-
-// Configuração dos Event Listeners da UI
-function setupEventListeners() {
-    // Salvar Configurações
-    document.getElementById('form-config').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const renda = Number(document.getElementById('renda').value);
-        const poupanca = Number(document.getElementById('poupanca').value);
-        
-        await setConfig('renda_mensal', renda);
-        await setConfig('meta_poupanca', poupanca);
-        
-        state.config.renda_mensal = renda;
-        state.config.meta_poupanca = poupanca;
-        
-        await atualizarDados();
-        render();
-    });
-
-    // Adicionar Gasto Diário
-    document.getElementById('form-gasto').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const valor = Number(document.getElementById('gasto-valor').value);
-        const categoria_id = Number(document.getElementById('gasto-categoria').value);
-        const data = document.getElementById('gasto-data').value;
-        const nota = document.getElementById('gasto-nota').value;
-
-        const dataObj = new Date(data);
-        const semana = getNumeroSemana(dataObj);
-        const ano = dataObj.getFullYear();
-
-        await addGasto({
-            valor,
-            categoria_id,
-            data,
-            nota,
-            semana,
-            ano
-        });
-
-        await atualizarDados();
-        render();
-    });
-
-    // Adicionar Gasto Fixo
-    document.getElementById('form-gasto-fixo').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const descricao = document.getElementById('fixo-desc').value;
-        const valor = Number(document.getElementById('fixo-valor').value);
-        const categoria_id = Number(document.getElementById('fixo-cat').value);
-
-        await addGastoFixo({
-            descricao,
-            valor,
-            categoria_id,
-            recorrencia: 'mensal',
-            dia_vencimento: 1
-        });
-
-        await atualizarDados();
-        render();
-    });
-
-    // Adicionar Reflexão
-    document.getElementById('form-reflexao').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const texto = document.getElementById('reflexao-texto').value;
-
-        await addReflexao({
-            semana: state.semanaAtual,
-            ano: state.anoAtual,
-            texto
-        });
-
-        await atualizarDados();
-        render();
-    });
-
-    // Deletar itens (Gastos ou Gastos Fixos)
-    document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            const id = Number(e.target.dataset.id);
-            const type = e.target.dataset.type;
-
-            if (type === 'gasto') {
-                await db.gastos.delete(id);
-            } else if (type === 'fixo') {
-                await db.gastos_fixos.delete(id);
+    // Event listeners dos botões de navegação
+    document.querySelectorAll('.btn-nav').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const tela = e.target.dataset.tela;
+            if (tela && tela !== state.telaAtiva) {
+                state.telaAtiva = tela;
+                renderApp();
             }
-
-            await atualizarDados();
-            render();
         });
     });
+
+    // Configura listeners da Mesa se estiver ativa
+    if (state.telaAtiva === 'mesa') {
+        setupMesaListeners(state, atualizarDados, renderApp);
+    }
 }
 
 // Inicializa o app ao carregar a página
