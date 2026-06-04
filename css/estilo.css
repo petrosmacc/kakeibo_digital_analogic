@@ -274,11 +274,14 @@ input:focus, select:focus, textarea:focus {
     gap: 10px;
 }
 
-.barra-label {
-    min-width: 120px;
+.barra-label-fixo {
+    width: 120px;
+    flex-shrink: 0;
     font-weight: bold;
     color: #4A3B32;
     font-size: 0.9rem;
+    text-align: right;
+    padding-right: 8px;
 }
 
 .barra-container {
@@ -339,6 +342,29 @@ input:focus, select:focus, textarea:focus {
 /* Conteúdo do período */
 .periodo-conteudo {
     margin-top: 10px;
+}
+
+/* Espaçamento uniforme entre seções da Sala de Reflexão */
+.periodo-conteudo h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.periodo-conteudo .barras-container {
+    margin-bottom: 16px;
+}
+
+.periodo-conteudo .comparacao-meta,
+.periodo-conteudo .meta-poupanca {
+    margin: 12px 0;
+}
+
+.periodo-conteudo .form-group {
+    margin-bottom: 12px;
+}
+
+.periodo-conteudo .reflexoes-list {
+    margin-top: 12px;
 }
 
 /* Comparação meta */

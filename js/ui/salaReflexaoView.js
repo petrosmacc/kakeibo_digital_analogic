@@ -35,7 +35,7 @@ function renderBarrasCategorias(state, totalGasto, orcamento) {
         const cor = cores[idx % cores.length];
         return `
             <div class="barra-categoria">
-                <span class="barra-label">${c.icone} ${c.nome}</span>
+                <span class="barra-label-fixo">${c.icone} ${c.nome}</span>
                 <div class="barra-container">
                     <div class="barra-preenchimento" style="width:${width}%; background-color:${cor};">
                         <span class="barra-valor-interno">R$ ${valor.toFixed(2)}</span>
