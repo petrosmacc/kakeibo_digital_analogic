@@ -36,7 +36,7 @@ export function renderMesa(state, metricas) {
     return `
         <header class="app-header">
             <div class="header-row">
-                <div>
+                <div class="header-title-wrapper">
                     <h1>Kakebo Digital <span>家計簿</span></h1>
                     <p class="subtitle">Semana ${state.semanaAtual} | ${dataInicioFormatada} a ${dataFimFormatada} de ${state.anoAtual}</p>
                 </div>

@@ -33,14 +33,21 @@ body {
     margin-bottom: 30px;
     border-bottom: 2px double var(--primary-color);
     padding-bottom: 15px;
+    position: relative;
 }
 
 .header-row {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
+    position: relative;
+}
+
+.header-title-wrapper {
+    text-align: center;
+    flex: 1;
 }
 
 .app-header h1 {
@@ -74,6 +81,10 @@ body {
     transition: background 0.2s;
     white-space: nowrap;
     font-size: 0.9rem;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 .btn-export-header:hover {

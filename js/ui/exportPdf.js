@@ -31,51 +31,43 @@ export function exportarTemplateSemanal(state) {
     doc.text('Preencha ao longo do dia e transfira para o digital ao final do dia.', pageWidth / 2, margin + 16, { align: 'center' });
     doc.text('Dica: use cores – vermelho para totais, azul/preto para gastos normais.', pageWidth / 2, margin + 22, { align: 'center' });
 
-    // Categorias com marcadores coloridos (quadrado 5x5mm + primeira letra)
+    // Categorias com nomes por extenso
     const categorias = [
-        { nome: 'Sobrevivência', cor: '#8B7355', letra: 'S' },
-        { nome: 'Opção', cor: '#A0522D', letra: 'O' },
-        { nome: 'Cultura', cor: '#6B8E6B', letra: 'C' },
-        { nome: 'Extraordinário', cor: '#C4A882', letra: 'E' }
+        'Sobrevivência',
+        'Opção',
+        'Cultura',
+        'Extraordinário'
     ];
     const diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
-    // Tabela
+    // Tabela ocupando ~80% da altura útil
     const startX = margin;
     const startY = margin + 30;
-    const colWidth = contentWidth / 8; // 7 dias + coluna de marcadores
-    const rowHeight = 25; // ~2,5cm para cada linha de categoria
-    const totalRowHeight = 15; // ~1,5cm para linha de Total do Dia
+    const colWidth = contentWidth / 8; // 7 dias + coluna de nomes
+    const rowHeight = (contentHeight * 0.8 - 30) / (categorias.length + 1); // altura para 4 linhas + linha total
+    const totalRowHeight = rowHeight * 0.6; // linha de total mais compacta
 
     // Cabeçalho dos dias
     doc.setFontSize(10);
     doc.setFont('Courier', 'bold');
-    doc.text('', startX, startY); // célula vazia para marcadores
+    doc.text('', startX, startY); // célula vazia para nomes
     diasSemana.forEach((dia, idx) => {
         doc.text(dia, startX + colWidth * (idx + 1), startY);
     });
 
-    // Linhas de categorias com marcadores coloridos
-    doc.setFont('Courier', 'normal');
-    categorias.forEach((cat, catIdx) => {
+    // Linhas de categorias com nomes por extenso
+    doc.setFont('Courier', 'bold');
+    doc.setFontSize(10);
+    categorias.forEach((nome, catIdx) => {
         const y = startY + rowHeight * (catIdx + 1);
-        // Marcador colorido (quadrado 5x5mm)
-        const markerX = startX + 2;
-        const markerY = y - 8;
-        doc.setFillColor(cat.cor);
-        doc.rect(markerX, markerY, 5, 5, 'F');
-        // Primeira letra dentro do quadrado
-        doc.setFontSize(8);
-        doc.setTextColor(255, 255, 255);
-        doc.text(cat.letra, markerX + 1.5, markerY + 4);
-        doc.setTextColor(0, 0, 0);
-        doc.setFontSize(10);
+        // Nome da categoria na primeira coluna
+        doc.text(nome, startX + 2, y - 2);
         // Células vazias para cada dia
         diasSemana.forEach((_, diaIdx) => {
             const x = startX + colWidth * (diaIdx + 1);
             doc.rect(x, y - 10, colWidth, rowHeight);
         });
-        // Borda da coluna de marcador
+        // Borda da coluna de nomes
         doc.rect(startX, y - 10, colWidth, rowHeight);
     });
 
@@ -92,15 +84,12 @@ export function exportarTemplateSemanal(state) {
     });
     doc.rect(startX, yTotal - 10, colWidth, totalRowHeight);
 
-    // Espaço "Anotações" (retângulo vazio ocupando 1/3 inferior da página)
+    // Espaço "Anotações" (apenas título, sem grade)
     const yAnotacoes = yTotal + totalRowHeight + 8;
-    const anotacoesHeight = (contentHeight - (yAnotacoes - margin)) * 0.9; // 90% do restante
     doc.setFontSize(11);
     doc.setFont('Courier', 'bold');
     doc.text('Anotações', startX, yAnotacoes);
-    doc.setDrawColor(150, 150, 150);
-    doc.setLineWidth(0.5);
-    doc.rect(startX, yAnotacoes + 4, contentWidth, anotacoesHeight);
+    // Não desenha retângulo nem grade
 
     // Salvar
     doc.save(`kakebo-template-semana-${state.semanaAtual}-${state.anoAtual}.pdf`);
