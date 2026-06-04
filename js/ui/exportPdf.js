@@ -31,22 +31,23 @@ export function exportarTemplateSemanal(state) {
     doc.text('Preencha ao longo do dia e transfira para o digital ao final do dia.', pageWidth / 2, margin + 16, { align: 'center' });
     doc.text('Dica: use cores – vermelho para totais, azul/preto para gastos normais.', pageWidth / 2, margin + 22, { align: 'center' });
 
-    // Categorias renomeadas
+    // Categorias (a quarta será escrita em três linhas)
     const categorias = [
         'Essencial',
         'Lazer',
         'Cultura',
-        'Presentes & Imprevistos'
+        null // será tratado separadamente
     ];
     const diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
     // Tabela ocupando ~80% da altura útil
     const startX = margin;
-    const startY = margin + 24; // ~0,5cm abaixo do subtítulo
+    // Nomes dos dias começam 1,5 cm abaixo da última linha do cabeçalho (linha 22 + 15mm = 37mm)
+    const startY = margin + 37; // 1,5 cm abaixo do subtítulo
     const colWidthCategoria = 40; // largura fixa para coluna de categorias
     const colWidthDia = (contentWidth - colWidthCategoria) / 7; // largura para cada dia
-    const rowHeight = (contentHeight * 0.8 - 24) / (categorias.length + 1); // altura para 4 linhas + linha total
-    const totalRowHeight = rowHeight * 0.6; // linha de total mais compacta
+    const rowHeight = 25; // 2,5 cm para cada linha de categoria
+    const totalRowHeight = 15; // 1,5 cm para linha de Total do Dia
 
     // Cabeçalho dos dias (alinhado centralmente sobre as células)
     doc.setFontSize(9);
@@ -57,13 +58,13 @@ export function exportarTemplateSemanal(state) {
         doc.text(dia, x, startY, { align: 'center' });
     });
 
-    // Linhas de categorias com nomes por extenso
-    doc.setFont('Courier', 'bold');
-    doc.setFontSize(9);
-    categorias.forEach((nome, catIdx) => {
+    // Linhas de categorias
+    // As três primeiras categorias com nome normal
+    for (let catIdx = 0; catIdx < 3; catIdx++) {
         const y = startY + rowHeight * (catIdx + 1);
-        // Nome da categoria na primeira coluna (com largura fixa)
-        doc.text(nome, startX + 2, y - 2);
+        doc.setFont('Courier', 'bold');
+        doc.setFontSize(9);
+        doc.text(categorias[catIdx], startX + 2, y - 2);
         // Células vazias para cada dia
         diasSemana.forEach((_, diaIdx) => {
             const x = startX + colWidthCategoria + colWidthDia * diaIdx;
@@ -71,7 +72,22 @@ export function exportarTemplateSemanal(state) {
         });
         // Borda da coluna de nomes
         doc.rect(startX, y - 10, colWidthCategoria, rowHeight);
+    }
+
+    // Quarta categoria em três linhas
+    const catIdx4 = 3;
+    const y4 = startY + rowHeight * (catIdx4 + 1);
+    doc.setFont('Courier', 'bold');
+    doc.setFontSize(8);
+    doc.text('Presentes', startX + 2, y4 - 6);
+    doc.text('&', startX + 2, y4 - 1);
+    doc.text('Imprevistos', startX + 2, y4 + 4);
+    // Células vazias para cada dia
+    diasSemana.forEach((_, diaIdx) => {
+        const x = startX + colWidthCategoria + colWidthDia * diaIdx;
+        doc.rect(x, y4 - 10, colWidthDia, rowHeight);
     });
+    doc.rect(startX, y4 - 10, colWidthCategoria, rowHeight);
 
     // Linha de totais diários (borda mais escura)
     const yTotal = startY + rowHeight * (categorias.length + 1);
@@ -86,8 +102,8 @@ export function exportarTemplateSemanal(state) {
     });
     doc.rect(startX, yTotal - 10, colWidthCategoria, totalRowHeight);
 
-    // Espaço "Anotações" (apenas título, sem grade)
-    const yAnotacoes = yTotal + totalRowHeight + 8;
+    // Espaço "Anotações" começa 2,0 cm abaixo da última linha da tabela
+    const yAnotacoes = yTotal + totalRowHeight + 20; // 2,0 cm
     doc.setFontSize(11);
     doc.setFont('Courier', 'bold');
     doc.text('Anotações', startX, yAnotacoes);
