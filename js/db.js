@@ -4,7 +4,7 @@ import Dexie from 'https://unpkg.com/dexie@3.2.3/dist/dexie.mjs';
 const db = new Dexie('KakeboDB');
 
 // Define o esquema das tabelas
-db.version(1).stores({
+db.version(2).stores({
     categorias: '++id, nome, icone, tipo',
     gastos: '++id, data, categoria_id, valor, nota, semana, ano, criado_em',
     gastos_fixos: '++id, descricao, categoria_id, valor, recorrencia, dia_vencimento',
