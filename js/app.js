@@ -30,7 +30,8 @@ const state = {
     mesAtual: new Date().getMonth() + 1,
     trimestreAtual: Math.ceil((new Date().getMonth() + 1) / 3),
     telaAtiva: 'mesa',
-    periodoReflexao: 'semana'
+    periodoReflexao: 'semana',
+    tema: localStorage.getItem('tema') || 'claro'
 };
 
 // Função auxiliar para obter o número da semana do ano
@@ -120,12 +121,29 @@ function renderApp() {
         conteudoHTML = renderSalaReflexao(state);
     }
 
+    // Aplica tema ao body
+    document.body.className = `tema-${state.tema}`;
+
     appDiv.innerHTML = `
         ${navHTML}
         <div id="conteudo">
             ${conteudoHTML}
         </div>
     `;
+
+    // Botão de alternância de tema (paleta)
+    const temaBtn = document.createElement('button');
+    temaBtn.className = 'btn-tema';
+    temaBtn.textContent = '🎨';
+    temaBtn.title = 'Alternar tema';
+    temaBtn.addEventListener('click', () => {
+        const temas = ['claro', 'escuro', 'sepia'];
+        const idx = temas.indexOf(state.tema);
+        state.tema = temas[(idx + 1) % temas.length];
+        localStorage.setItem('tema', state.tema);
+        renderApp();
+    });
+    appDiv.prepend(temaBtn);
 
     // Event listeners dos botões de navegação
     document.querySelectorAll('.btn-nav').forEach(btn => {

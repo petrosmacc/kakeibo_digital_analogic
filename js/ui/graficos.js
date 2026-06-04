@@ -65,8 +65,15 @@ export function desenharLinhaEvolucao(canvasId, dados) {
     const larguraUtil = canvas.width - margemEsquerda - margemDireita;
     const alturaUtil = canvas.height - margemSuperior - margemInferior;
 
+    // Obtém cores do tema atual via CSS
+    const estiloBody = getComputedStyle(document.body);
+    const corFundo = estiloBody.getPropertyValue('--bg-color').trim() || '#F5F0E8';
+    const corTexto = estiloBody.getPropertyValue('--text-color').trim() || '#4A3B32';
+    const corLinha = '#6B8E6B';
+    const corGrade = '#E0D5C5';
+
     // Fundo
-    ctx.fillStyle = '#F5F0E8';
+    ctx.fillStyle = corFundo;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     if (dados.length === 0) return;
@@ -76,7 +83,7 @@ export function desenharLinhaEvolucao(canvasId, dados) {
     const escalaMax = Math.ceil(maiorValor / 100) * 100 || 100;
 
     // Grade horizontal
-    ctx.strokeStyle = '#E0D5C5';
+    ctx.strokeStyle = corGrade;
     ctx.lineWidth = 1;
     const numLinhas = 5;
     for (let i = 0; i <= numLinhas; i++) {
@@ -87,8 +94,8 @@ export function desenharLinhaEvolucao(canvasId, dados) {
         ctx.stroke();
 
         // Rótulo do eixo Y
-        ctx.fillStyle = '#4A3B32';
-        ctx.font = '14px "Courier New", monospace';
+        ctx.fillStyle = corTexto;
+        ctx.font = '12px "Courier New", monospace';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         const valorY = escalaMax - (escalaMax / numLinhas) * i;
@@ -97,7 +104,7 @@ export function desenharLinhaEvolucao(canvasId, dados) {
 
     // Pontos e linha
     const stepX = dados.length > 1 ? larguraUtil / (dados.length - 1) : larguraUtil / 2;
-    ctx.strokeStyle = '#6B8E6B';
+    ctx.strokeStyle = corLinha;
     ctx.lineWidth = 3;
     ctx.beginPath();
     dados.forEach((d, idx) => {
@@ -108,19 +115,47 @@ export function desenharLinhaEvolucao(canvasId, dados) {
     });
     ctx.stroke();
 
+    // Preenchimento suave sob a linha (gradiente)
+    const gradiente = ctx.createLinearGradient(0, margemSuperior, 0, margemSuperior + alturaUtil);
+    gradiente.addColorStop(0, 'rgba(107,142,107,0.3)');
+    gradiente.addColorStop(1, 'rgba(107,142,107,0)');
+    ctx.fillStyle = gradiente;
+    ctx.beginPath();
+    dados.forEach((d, idx) => {
+        const x = margemEsquerda + idx * stepX;
+        const y = margemSuperior + alturaUtil - (d.valor / escalaMax) * alturaUtil;
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(margemEsquerda + (dados.length - 1) * stepX, margemSuperior + alturaUtil);
+    ctx.lineTo(margemEsquerda, margemSuperior + alturaUtil);
+    ctx.closePath();
+    ctx.fill();
+
     // Pontos circulares
     dados.forEach((d, idx) => {
         const x = margemEsquerda + idx * stepX;
         const y = margemSuperior + alturaUtil - (d.valor / escalaMax) * alturaUtil;
-        ctx.fillStyle = '#6B8E6B';
+        ctx.fillStyle = corLinha;
         ctx.beginPath();
         ctx.arc(x, y, 5, 0, Math.PI * 2);
         ctx.fill();
     });
 
+    // Rótulos de valor acima de cada ponto
+    ctx.fillStyle = corTexto;
+    ctx.font = '10px "Courier New", monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    dados.forEach((d, idx) => {
+        const x = margemEsquerda + idx * stepX;
+        const y = margemSuperior + alturaUtil - (d.valor / escalaMax) * alturaUtil;
+        ctx.fillText(formatarValor(d.valor), x, y - 8);
+    });
+
     // Rótulos do eixo X
-    ctx.fillStyle = '#4A3B32';
-    ctx.font = '14px "Courier New", monospace';
+    ctx.fillStyle = corTexto;
+    ctx.font = '12px "Courier New", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     dados.forEach((d, idx) => {
