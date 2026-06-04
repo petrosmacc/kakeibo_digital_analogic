@@ -20,9 +20,10 @@
     <div id="app"></div>
 
     <!-- Script Principal do Aplicativo -->
-    <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/app.js?v=2"></script>
 
-    <!-- Registro do Service Worker para funcionamento Offline -->
+    <!-- Registro do Service Worker para funcionamento Offline (desabilitado durante desenvolvimento) -->
+    <!--
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -32,6 +33,7 @@
             });
         }
     </script>
+    -->
 
 </body>
 </html>
