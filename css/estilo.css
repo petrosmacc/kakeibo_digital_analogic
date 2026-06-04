@@ -265,3 +265,93 @@ input:focus, select:focus, textarea:focus {
     margin-bottom: 10px;
     font-style: italic;
 }
+
+/* Barras de categoria (Sala de Reflexão) */
+.barra-categoria {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 10px;
+}
+
+.barra-label {
+    min-width: 120px;
+    font-weight: bold;
+    color: #4A3B32;
+    font-size: 0.9rem;
+}
+
+.barra-container {
+    flex: 1;
+    height: 28px;
+    background-color: #F5F0E8;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.barra-preenchimento {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 8px;
+    transition: width 0.3s ease;
+    min-width: 0;
+}
+
+.barra-valor-interno {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #4A3B32;
+    white-space: nowrap;
+}
+
+/* Navegação de períodos */
+.periodo-nav {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.btn-periodo {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    border-radius: 2px;
+    transition: background 0.2s;
+}
+
+.btn-periodo.active {
+    background-color: var(--primary-color);
+}
+
+.btn-periodo:hover {
+    background-color: #3a5348;
+}
+
+/* Conteúdo do período */
+.periodo-conteudo {
+    margin-top: 10px;
+}
+
+/* Comparação meta */
+.comparacao-meta {
+    margin: 15px 0;
+    padding: 10px;
+    background: #fdf6e2;
+    border-left: 4px solid var(--primary-color);
+}
+
+.meta-poupanca {
+    margin: 15px 0;
+    padding: 10px;
+    background: #f0f7f0;
+    border-left: 4px solid var(--secondary-color);
+}

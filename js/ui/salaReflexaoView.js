@@ -27,16 +27,20 @@ function renderBarrasCategorias(state, totalGasto, orcamento) {
         }
     });
     const maxValor = Math.max(...Object.values(totaisPorCat), 1);
-    return categorias.map(c => {
+    // Paleta terrosa para cada categoria (cíclica)
+    const cores = ['#8B7355', '#6B8E6B', '#C4A882', '#A0522D'];
+    return categorias.map((c, idx) => {
         const valor = totaisPorCat[c.id] || 0;
         const width = (valor / maxValor) * 100;
+        const cor = cores[idx % cores.length];
         return `
             <div class="barra-categoria">
                 <span class="barra-label">${c.icone} ${c.nome}</span>
                 <div class="barra-container">
-                    <div class="barra-fill" style="width:${width}%"></div>
+                    <div class="barra-preenchimento" style="width:${width}%; background-color:${cor};">
+                        <span class="barra-valor-interno">R$ ${valor.toFixed(2)}</span>
+                    </div>
                 </div>
-                <span class="barra-valor">R$ ${valor.toFixed(2)}</span>
             </div>
         `;
     }).join('');
