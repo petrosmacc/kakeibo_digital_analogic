@@ -35,8 +35,13 @@ export function renderMesa(state, metricas) {
     
     return `
         <header class="app-header">
-            <h1>Kakebo Digital <span>家計簿</span></h1>
-            <p class="subtitle">Semana ${state.semanaAtual} | ${dataInicioFormatada} a ${dataFimFormatada} de ${state.anoAtual}</p>
+            <div class="header-row">
+                <div>
+                    <h1>Kakebo Digital <span>家計簿</span></h1>
+                    <p class="subtitle">Semana ${state.semanaAtual} | ${dataInicioFormatada} a ${dataFimFormatada} de ${state.anoAtual}</p>
+                </div>
+                <button class="btn btn-export-header" id="btn-export-template">🖨️ Template semanal</button>
+            </div>
         </header>
 
         <main class="container">
@@ -171,7 +176,6 @@ export function renderMesa(state, metricas) {
                         `;
                     }).join('')}
                 </ul>
-                <button class="btn btn-export" id="btn-export-template">🖨️ Exportar Template da Semana</button>
             </section>
         </main>
     `;

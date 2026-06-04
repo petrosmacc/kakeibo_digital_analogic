@@ -1,9 +1,9 @@
-// Função auxiliar para formatar valor em reais
+// Função auxiliar para formatar valor em reais (mantida para balanço mensal)
 function formatarValor(valor) {
     return 'R$ ' + valor.toFixed(2).replace('.', ',');
 }
 
-// Exporta template semanal em PDF (paisagem A4)
+// Exporta template semanal em PDF (paisagem A4) – modelo em branco para preenchimento manual
 export function exportarTemplateSemanal(state) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
@@ -17,29 +17,23 @@ export function exportarTemplateSemanal(state) {
 
     // Título
     doc.setFontSize(14);
-    doc.text(`Kakebo Digital – Semana ${state.semanaAtual} de ${state.anoAtual}`, pageWidth / 2, 15, { align: 'center' });
+    doc.setFont('Courier', 'bold');
+    doc.text(`Kakebo Digital – Template Semanal (Semana ${state.semanaAtual} de ${state.anoAtual})`, pageWidth / 2, 15, { align: 'center' });
+
+    // Subtítulo
+    doc.setFontSize(10);
+    doc.setFont('Courier', 'italic');
+    doc.text('Preencha ao longo do dia e transfira para o digital ao final do dia.', pageWidth / 2, 22, { align: 'center' });
 
     // Categorias (4 linhas)
     const categorias = state.categorias; // array de objetos { id, nome, icone }
     const diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
-    // Mapear gastos por data e categoria
-    const gastosPorDia = {};
-    state.gastosSemana.forEach(g => {
-        const data = new Date(g.data);
-        const diaSemana = data.getDay(); // 0=Dom,1=Seg...
-        const diaIdx = (diaSemana === 0 ? 6 : diaSemana - 1); // 0=Seg..6=Dom
-        const catId = Number(g.categoria_id);
-        if (!gastosPorDia[diaIdx]) gastosPorDia[diaIdx] = {};
-        if (!gastosPorDia[diaIdx][catId]) gastosPorDia[diaIdx][catId] = 0;
-        gastosPorDia[diaIdx][catId] += Number(g.valor);
-    });
-
     // Tabela
     const startX = 15;
-    const startY = 30;
+    const startY = 32;
     const colWidth = (pageWidth - 30) / 8; // 7 dias + coluna de categoria
-    const rowHeight = 12;
+    const rowHeight = 18; // altura confortável ~2cm
 
     // Cabeçalho
     doc.setFontSize(10);
@@ -49,45 +43,60 @@ export function exportarTemplateSemanal(state) {
         doc.text(dia, startX + colWidth * (idx + 1), startY);
     });
 
-    // Linhas de categorias
+    // Linhas de categorias (células vazias)
     doc.setFont('Courier', 'normal');
     categorias.forEach((cat, catIdx) => {
         const y = startY + rowHeight * (catIdx + 1);
         doc.text(`${cat.icone} ${cat.nome}`, startX, y);
-        let totalCat = 0;
+        // Desenha bordas das células
         diasSemana.forEach((_, diaIdx) => {
-            const valor = gastosPorDia[diaIdx]?.[cat.id] || 0;
-            totalCat += valor;
-            doc.text(formatarValor(valor), startX + colWidth * (diaIdx + 1), y);
+            const x = startX + colWidth * (diaIdx + 1);
+            doc.rect(x - 2, y - 10, colWidth - 2, rowHeight);
         });
-        // Total da categoria
-        doc.setFont('Courier', 'bold');
-        doc.text(formatarValor(totalCat), startX + colWidth * 7 + colWidth, y);
-        doc.setFont('Courier', 'normal');
+        // Borda da coluna de categoria
+        doc.rect(startX - 2, y - 10, colWidth - 2, rowHeight);
     });
 
     // Linha de totais diários
     const yTotal = startY + rowHeight * (categorias.length + 1);
     doc.setFont('Courier', 'bold');
-    doc.text('Total', startX, yTotal);
-    let totalGeral = 0;
+    doc.text('Total do dia', startX, yTotal);
     diasSemana.forEach((_, diaIdx) => {
-        let totalDia = 0;
-        categorias.forEach(cat => {
-            totalDia += gastosPorDia[diaIdx]?.[cat.id] || 0;
-        });
-        totalGeral += totalDia;
-        doc.text(formatarValor(totalDia), startX + colWidth * (diaIdx + 1), yTotal);
+        const x = startX + colWidth * (diaIdx + 1);
+        doc.rect(x - 2, yTotal - 10, colWidth - 2, rowHeight);
     });
-    doc.text(formatarValor(totalGeral), startX + colWidth * 7 + colWidth, yTotal);
+    doc.rect(startX - 2, yTotal - 10, colWidth - 2, rowHeight);
+
+    // Linha de total da semana por categoria
+    const yTotalCat = yTotal + rowHeight;
+    doc.setFont('Courier', 'bold');
+    doc.text('Total da semana por categoria', startX, yTotalCat);
+    // Célula mesclada para cada categoria (apenas uma célula grande)
+    const larguraMesclada = colWidth * 7;
+    doc.rect(startX + colWidth - 2, yTotalCat - 10, larguraMesclada, rowHeight);
+
+    // Espaço para reflexão
+    const yReflexao = yTotalCat + rowHeight + 10;
+    doc.setFont('Courier', 'bold');
+    doc.setFontSize(11);
+    doc.text('Reflexão da semana:', startX, yReflexao);
+    doc.setFont('Courier', 'normal');
+    doc.setFontSize(10);
+    // Linhas pautadas
+    const lineHeight = 6;
+    const numLinhas = 6;
+    for (let i = 0; i < numLinhas; i++) {
+        const y = yReflexao + 8 + i * lineHeight;
+        doc.line(startX, y, pageWidth - 15, y);
+    }
 
     // Rodapé
     doc.setFontSize(8);
     doc.setFont('Courier', 'italic');
-    doc.text('Use cores diferentes para destacar os totais, se desejar.', pageWidth / 2, pageHeight - 10, { align: 'center' });
+    doc.text('Dica: use cores diferentes para totais – vermelho para totais diários, azul para gastos normais. Isso ajuda na visualização.', pageWidth / 2, pageHeight - 10, { align: 'center' });
 
     // Salvar
-    doc.save(`kakebo-semana-${state.semanaAtual}-${state.anoAtual}.pdf`);
+    doc.save(`kakebo-template-semana-${state.semanaAtual}-${state.anoAtual}.pdf`);
 }
 
 // Exporta balanço mensal em PDF (retrato A4)
