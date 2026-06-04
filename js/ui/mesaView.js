@@ -2,7 +2,6 @@ import {
     setConfig,
     addGasto,
     addGastoFixo,
-    getNumeroSemana
 } from '../db.js';
 import db from '../db.js';
 
