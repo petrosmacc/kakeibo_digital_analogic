@@ -4,6 +4,7 @@ import {
     addGastoFixo,
 } from '../db.js';
 import db from '../db.js';
+import { exportarTemplateSemanal } from './exportPdf.js';
 
 // Função auxiliar para obter o número da semana do ano (mesma lógica de app.js)
 function getNumeroSemana(d) {
@@ -170,6 +171,7 @@ export function renderMesa(state, metricas) {
                         `;
                     }).join('')}
                 </ul>
+                <button class="btn btn-export" id="btn-export-template">🖨️ Exportar Template da Semana</button>
             </section>
         </main>
     `;
@@ -252,4 +254,12 @@ export function setupMesaListeners(state, atualizarDados, renderApp) {
             renderApp();
         });
     });
+
+    // Botão de exportar template semanal
+    const btnExport = document.getElementById('btn-export-template');
+    if (btnExport) {
+        btnExport.addEventListener('click', () => {
+            exportarTemplateSemanal(state);
+        });
+    }
 }
