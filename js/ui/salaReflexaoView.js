@@ -1,6 +1,5 @@
 import { addReflexao, getReflexoes, getGastosPeriodo } from '../db.js';
 import { desenharBarras, desenharLinhaEvolucao } from './graficos.js';
-import { exportarBalancoMensal } from './exportPdf.js';
 
 function getReferencia(state) {
     const periodo = state.periodoReflexao;
@@ -66,7 +65,7 @@ const coresCategoria = {
     'Sobrevivência': '#8B7355',
     'Opção': '#A0522D',
     'Cultura': '#6B8E6B',
-    'Extraordinário': '#C4A882'
+    'Extra': '#C4A882'
 };
 
 function obterCorCategoria(nome) {
@@ -139,7 +138,6 @@ export function renderSalaReflexao(state) {
                 <p>Você poupou <strong>R$ ${poupado.toFixed(2)}</strong>. Sua meta era <strong>R$ ${metaPoupanca.toFixed(2)}</strong> ${cumpriu ? '✓' : '✗'}</p>
             </div>
             <canvas id="grafico-mes" width="400" height="200"></canvas>
-            <button class="btn btn-export" id="btn-export-mensal">🖨️ Exportar Balanço Mensal</button>
             ${renderFormReflexao(state)}
             <div class="reflexoes-list">${renderReflexoesAnteriores(state)}</div>
         `;
@@ -210,14 +208,6 @@ export function setupSalaListeners(state, atualizarDados, renderApp) {
             });
             await atualizarDados();
             renderApp();
-        });
-    }
-
-    // Botão de exportar balanço mensal
-    const btnExportMensal = document.getElementById('btn-export-mensal');
-    if (btnExportMensal) {
-        btnExportMensal.addEventListener('click', () => {
-            exportarBalancoMensal(state);
         });
     }
 

@@ -20,7 +20,7 @@ export async function seedCategorias() {
             { nome: 'Sobrevivência', icone: '🏠', tipo: 'despesa' },
             { nome: 'Opção', icone: '☕', tipo: 'despesa' },
             { nome: 'Cultura', icone: '🎭', tipo: 'despesa' },
-            { nome: 'Extraordinário', icone: '🎁', tipo: 'despesa' }
+            { nome: 'Extra', icone: '🎁', tipo: 'despesa' }
         ];
         await db.categorias.bulkAdd(categoriasIniciais);
         console.log('Categorias iniciais do Kakeibo cadastradas com sucesso!');
