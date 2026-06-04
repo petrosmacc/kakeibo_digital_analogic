@@ -1,4 +1,5 @@
-import { addReflexao, getReflexoes } from '../db.js';
+import { addReflexao, getReflexoes, getGastosPeriodo } from '../db.js';
+import { desenharBarras, desenharLinhaEvolucao } from './graficos.js';
 
 function getReferencia(state) {
     const periodo = state.periodoReflexao;
@@ -44,6 +45,31 @@ function renderBarrasCategorias(state, totalGasto, orcamento) {
             </div>
         `;
     }).join('');
+}
+
+// Função auxiliar para obter totais por categoria a partir de um array de gastos
+function obterTotaisPorCategoria(gastos, categorias) {
+    const totais = {};
+    categorias.forEach(c => { totais[c.id] = 0; });
+    gastos.forEach(g => {
+        const catId = Number(g.categoria_id);
+        if (totais[catId] !== undefined) {
+            totais[catId] += Number(g.valor);
+        }
+    });
+    return totais;
+}
+
+// Mapeamento de cores fixas por nome de categoria
+const coresCategoria = {
+    'Sobrevivência': '#8B7355',
+    'Opção': '#A0522D',
+    'Cultura': '#6B8E6B',
+    'Extraordinário': '#C4A882'
+};
+
+function obterCorCategoria(nome) {
+    return coresCategoria[nome] || '#8B7355';
 }
 
 function renderFormReflexao(state) {
@@ -184,4 +210,35 @@ export function setupSalaListeners(state, atualizarDados, renderApp) {
             renderApp();
         });
     }
+
+    // Desenha gráficos após o DOM estar pronto
+    requestAnimationFrame(() => {
+        const periodo = state.periodoReflexao;
+        if (periodo === 'mes') {
+            // Obter totais por categoria do mês atual (usando gastosSemana como placeholder)
+            const totais = obterTotaisPorCategoria(state.gastosSemana, state.categorias);
+            const dadosBarras = state.categorias.map(c => ({
+                rotulo: `${c.icone} ${c.nome}`,
+                valor: totais[c.id] || 0,
+                cor: obterCorCategoria(c.nome)
+            }));
+            desenharBarras('grafico-mes', dadosBarras);
+        } else if (periodo === 'trimestre') {
+            // Placeholder: dados simulados para trimestre
+            const dadosTrimestre = [
+                { rotulo: 'Mês 1', valor: 1200 },
+                { rotulo: 'Mês 2', valor: 1500 },
+                { rotulo: 'Mês 3', valor: 1100 }
+            ];
+            desenharLinhaEvolucao('grafico-trimestre', dadosTrimestre);
+        } else if (periodo === 'ano') {
+            // Placeholder: dados simulados para ano
+            const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+            const dadosAno = meses.map((m, i) => ({
+                rotulo: m,
+                valor: Math.floor(Math.random() * 2000) + 500
+            }));
+            desenharLinhaEvolucao('grafico-ano', dadosAno);
+        }
+    });
 }
