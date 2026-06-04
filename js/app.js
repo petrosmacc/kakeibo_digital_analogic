@@ -13,6 +13,7 @@ import {
 } from './db.js';
 import db from './db.js'; 
 import { renderMesa, setupMesaListeners } from './ui/mesaView.js';
+import { renderSalaReflexao, setupSalaListeners } from './ui/salaReflexaoView.js';
 import { renderGraficos } from './ui/graficos.js';
 
 // Estado global simples da aplicação
@@ -27,6 +28,8 @@ const state = {
     reflexoes: [],
     semanaAtual: 1,
     anoAtual: new Date().getFullYear(),
+    mesAtual: new Date().getMonth() + 1,
+    trimestreAtual: Math.ceil((new Date().getMonth() + 1) / 3),
     telaAtiva: 'mesa',
     periodoReflexao: 'semana'
 };
@@ -62,7 +65,19 @@ async function init() {
 async function atualizarDados() {
     state.gastosSemana = await getGastosSemana(state.semanaAtual, state.anoAtual);
     state.gastosFixos = await getGastosFixos();
-    state.reflexoes = await getReflexoes(state.semanaAtual, state.anoAtual);
+    // Carrega reflexões do período ativo
+    const periodo = state.periodoReflexao;
+    let referencia = '';
+    if (periodo === 'semana') {
+        referencia = `${state.anoAtual}-W${String(state.semanaAtual).padStart(2,'0')}`;
+    } else if (periodo === 'mes') {
+        referencia = `${state.anoAtual}-${String(state.mesAtual).padStart(2,'0')}`;
+    } else if (periodo === 'trimestre') {
+        referencia = `${state.anoAtual}-T${state.trimestreAtual}`;
+    } else if (periodo === 'ano') {
+        referencia = `${state.anoAtual}`;
+    }
+    state.reflexoes = await getReflexoes({ periodo, referencia });
 }
 
 // Cálculos do Kakeibo
@@ -85,15 +100,12 @@ function calcularMetricas() {
     };
 }
 
-// Placeholder para Sala de Reflexão
-function renderSalaReflexao(state) {
-    return `<section class="card"><h2>Sala de Reflexão</h2><p class="empty-msg">Sala de Reflexão em construção</p></section>`;
-}
-
 // Renderização principal com navegação
 function renderApp() {
     const appDiv = document.getElementById('app');
     const metricas = calcularMetricas();
+    // Disponibiliza metricas globalmente para uso em salaReflexaoView
+    window.__metricas = metricas;
 
     const navHTML = `
         <nav class="app-nav">
@@ -130,6 +142,8 @@ function renderApp() {
     // Configura listeners da Mesa se estiver ativa
     if (state.telaAtiva === 'mesa') {
         setupMesaListeners(state, atualizarDados, renderApp);
+    } else {
+        setupSalaListeners(state, atualizarDados, renderApp);
     }
 }
 

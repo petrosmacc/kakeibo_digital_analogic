@@ -8,7 +8,7 @@ db.version(1).stores({
     categorias: '++id, nome, icone, tipo',
     gastos: '++id, data, categoria_id, valor, nota, semana, ano, criado_em',
     gastos_fixos: '++id, descricao, categoria_id, valor, recorrencia, dia_vencimento',
-    reflexoes: '++id, semana, ano, texto, criado_em',
+    reflexoes: '++id, semana, ano, texto, periodo, referencia, criado_em',
     config: 'chave, valor'
 });
 
@@ -18,7 +18,7 @@ export async function seedCategorias() {
     if (count === 0) {
         const categoriasIniciais = [
             { nome: 'Sobrevivência', icone: '🏠', tipo: 'despesa' },
-            { nome: 'Opção', icone: '🍵', tipo: 'despesa' },
+            { nome: 'Opção', icone: '☕', tipo: 'despesa' },
             { nome: 'Cultura', icone: '🎭', tipo: 'despesa' },
             { nome: 'Extraordinário', icone: '🎁', tipo: 'despesa' }
         ];
@@ -73,7 +73,7 @@ export async function getGastosPeriodo(inicio, fim) {
         .toArray();
 }
 
-// Adiciona uma nova reflexão semanal
+// Adiciona uma nova reflexão (aceita campos periodo e referencia)
 export async function addReflexao(reflexao) {
     const novaReflexao = {
         ...reflexao,
@@ -82,11 +82,24 @@ export async function addReflexao(reflexao) {
     return await db.reflexoes.add(novaReflexao);
 }
 
-// Retorna as reflexões filtradas por semana e ano
-export async function getReflexoes(semana, ano) {
-    return await db.reflexoes
-        .where({ semana: Number(semana), ano: Number(ano) })
-        .toArray();
+// Retorna as reflexões filtradas por objeto de filtro opcional
+// Exemplo: getReflexoes({ periodo: 'semana', referencia: '2026-W23' })
+// Se nenhum filtro for passado, retorna todas.
+export async function getReflexoes(filtro = {}) {
+    const { periodo, referencia, semana, ano } = filtro;
+    let collection = db.reflexoes;
+
+    if (periodo && referencia) {
+        collection = collection.where({ periodo, referencia });
+    } else if (semana !== undefined && ano !== undefined) {
+        collection = collection.where({ semana: Number(semana), ano: Number(ano) });
+    } else if (semana !== undefined) {
+        collection = collection.where({ semana: Number(semana) });
+    } else if (ano !== undefined) {
+        collection = collection.where({ ano: Number(ano) });
+    }
+
+    return await collection.toArray();
 }
 
 // Adiciona um novo gasto fixo
