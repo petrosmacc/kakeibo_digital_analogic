@@ -14,7 +14,6 @@ import {
 import db from './db.js'; 
 import { renderMesa, setupMesaListeners } from './ui/mesaView.js';
 import { renderSalaReflexao, setupSalaListeners } from './ui/salaReflexaoView.js';
-import { renderGraficos } from './ui/graficos.js';
 
 // Estado global simples da aplicação
 const state = {
