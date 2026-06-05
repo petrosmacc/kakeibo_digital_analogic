@@ -24,6 +24,18 @@ export async function seedCategorias() {
         ];
         await db.categorias.bulkAdd(categoriasIniciais);
         console.log('Categorias iniciais do Kakeibo cadastradas com sucesso!');
+    } else {
+        // Migração: corrige nomes antigos de categorias existentes
+        const categoriasAtuais = await db.categorias.toArray();
+        for (const cat of categoriasAtuais) {
+            if (cat.nome === 'Sobrevivência') {
+                await db.categorias.update(cat.id, { nome: 'Essencial' });
+            } else if (cat.nome === 'Opção') {
+                await db.categorias.update(cat.id, { nome: 'Lazer' });
+            } else if (cat.nome === 'Extraordinário' || cat.nome === 'Presentes & Imprevistos') {
+                await db.categorias.update(cat.id, { nome: 'Extra' });
+            }
+        }
     }
 }
 

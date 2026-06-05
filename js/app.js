@@ -1,3 +1,4 @@
+// Diagnóstico OK
 import {
     getCategorias,
     getConfig,
@@ -31,7 +32,9 @@ const state = {
     trimestreAtual: Math.ceil((new Date().getMonth() + 1) / 3),
     telaAtiva: 'mesa',
     periodoReflexao: 'semana',
-    tema: localStorage.getItem('tema') || 'claro'
+    tema: localStorage.getItem('tema') || 'claro',
+    fixoSectionOpen: false,
+    gastoSectionOpen: false
 };
 
 // Função auxiliar para obter o número da semana do ano

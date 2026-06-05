@@ -2,6 +2,7 @@ import {
     setConfig,
     addGasto,
     addGastoFixo,
+    updateGastoFixo,
 } from '../db.js';
 import db from '../db.js';
 import { exportarTemplateSemanal } from './exportPdf.js';
@@ -83,7 +84,7 @@ export function renderMesa(state, metricas) {
             <!-- Adicionar Gasto Diário (colapsável) -->
             <section class="card collapsible">
                 <h2 class="collapsible-header" data-target="gasto-content">📝 Registrar Gasto Diário</h2>
-                <div id="gasto-content" class="collapsible-content" style="display:none;">
+                <div id="gasto-content" class="collapsible-content" style="display:${state.gastoSectionOpen ? 'block' : 'none'};">
                     <form id="form-gasto">
                         <div class="grid-form">
                             <div class="form-group">
@@ -107,13 +108,32 @@ export function renderMesa(state, metricas) {
                         </div>
                         <button type="submit" class="btn btn-block">Adicionar Gasto</button>
                     </form>
+
+                    <!-- Gastos da Semana (movido para dentro) -->
+                    <h3>Gastos desta Semana</h3>
+                    <ul class="list-items">
+                        ${state.gastosSemana.length === 0 ? '<p class="empty-msg">Nenhum gasto registrado nesta semana.</p>' : ''}
+                        ${state.gastosSemana.map(g => {
+                            const cat = state.categorias.find(c => c.id === Number(g.categoria_id));
+                            return `
+                                <li class="flex-between">
+                                    <div>
+                                        <span class="tag">${cat ? cat.icone + ' ' + cat.nome : 'Geral'}</span>
+                                        <strong>${g.nota}</strong>
+                                        <span class="date-label">${new Date(g.data).toLocaleDateString('pt-BR')}</span>
+                                    </div>
+                                    <span>R$ ${Number(g.valor).toFixed(2)} <button class="btn-delete" data-id="${g.id}" data-type="gasto">×</button></span>
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
                 </div>
             </section>
 
             <!-- Gastos Fixos (colapsável) -->
             <section class="card collapsible">
                 <h2 class="collapsible-header" data-target="fixo-content">⚙️ Gastos Fixos</h2>
-                <div id="fixo-content" class="collapsible-content" style="display:none;">
+                <div id="fixo-content" class="collapsible-content" style="display:${state.fixoSectionOpen ? 'block' : 'none'};">
                     <form id="form-gasto-fixo" class="flex-form">
                         <div class="form-group">
                             <label for="fixo-desc">Descrição</label>
@@ -129,42 +149,51 @@ export function renderMesa(state, metricas) {
                                 ${state.categorias.map(c => `<option value="${c.id}">${c.icone} ${c.nome}</option>`).join('')}
                             </select>
                         </div>
+                        <div class="form-group">
+                            <label for="fixo-dia">Dia Débito</label>
+                            <input type="number" id="fixo-dia" min="1" max="31" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fixo-pagamento">Meio Pagamento</label>
+                            <select id="fixo-pagamento" required>
+                                <option value="Automático">Automático</option>
+                                <option value="Pix">Pix</option>
+                            </select>
+                        </div>
                         <button type="submit" class="btn">Adicionar Fixo</button>
                     </form>
 
-                    <ul class="list-items">
-                        ${state.gastosFixos.map(gf => {
+                    <table class="tabela-fixos">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th>Item</th>
+                          <th>Dia</th>
+                          <th>Pagamento</th>
+                          <th>Valor</th>
+                          <th>Ações</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          ${state.gastosFixos.map(gf => {
                             const cat = state.categorias.find(c => c.id === Number(gf.categoria_id));
                             return `
-                                <li class="flex-between">
-                                    <span>${cat ? cat.icone : '❓'} <strong>${gf.descricao}</strong></span>
-                                    <span>R$ ${Number(gf.valor).toFixed(2)} <button class="btn-delete" data-id="${gf.id}" data-type="fixo">×</button></span>
-                                </li>
+                              <tr>
+                                <td>${cat ? cat.icone : '❓'}</td>
+                                <td>${gf.descricao}</td>
+                                <td>${gf.dia_vencimento || '-'}</td>
+                                <td>${gf.meio_pagamento || 'Automático'}</td>
+                                <td>R$ ${Number(gf.valor).toFixed(2)}</td>
+                                <td>
+                                  <button class="btn-edit-fixo" data-id="${gf.id}">Editar</button>
+                                  <button class="btn-delete" data-id="${gf.id}" data-type="fixo">×</button>
+                                </td>
+                              </tr>
                             `;
-                        }).join('')}
-                    </ul>
+                          }).join('')}
+                        </tbody>
+                    </table>
                 </div>
-            </section>
-
-            <!-- Gastos da Semana -->
-            <section class="card">
-                <h2>Gastos desta Semana</h2>
-                <ul class="list-items">
-                    ${state.gastosSemana.length === 0 ? '<p class="empty-msg">Nenhum gasto registrado nesta semana.</p>' : ''}
-                    ${state.gastosSemana.map(g => {
-                        const cat = state.categorias.find(c => c.id === Number(g.categoria_id));
-                        return `
-                            <li class="flex-between">
-                                <div>
-                                    <span class="tag">${cat ? cat.icone + ' ' + cat.nome : 'Geral'}</span>
-                                    <strong>${g.nota}</strong>
-                                    <span class="date-label">${new Date(g.data).toLocaleDateString('pt-BR')}</span>
-                                </div>
-                                <span>R$ ${Number(g.valor).toFixed(2)} <button class="btn-delete" data-id="${g.id}" data-type="gasto">×</button></span>
-                            </li>
-                        `;
-                    }).join('')}
-                </ul>
             </section>
         </main>
     `;
@@ -188,7 +217,6 @@ export function setupMesaListeners(state, atualizarDados, renderApp) {
             this.appendChild(input);
             input.focus();
             input.select();
-
             const save = async () => {
                 const newValue = Number(input.value);
                 if (!isNaN(newValue) && newValue !== currentValue) {
@@ -229,6 +257,12 @@ export function setupMesaListeners(state, atualizarDados, renderApp) {
             if (content) {
                 const isVisible = content.style.display !== 'none';
                 content.style.display = isVisible ? 'none' : 'block';
+                // Salva estado para persistir após re-render
+                if (targetId === 'fixo-content') {
+                    state.fixoSectionOpen = !isVisible;
+                } else if (targetId === 'gasto-content') {
+                    state.gastoSectionOpen = !isVisible;
+                }
             }
         });
     });
@@ -258,20 +292,68 @@ export function setupMesaListeners(state, atualizarDados, renderApp) {
         renderApp();
     });
 
-    // Adicionar Gasto Fixo
-    document.getElementById('form-gasto-fixo').addEventListener('submit', async (e) => {
+
+    // Editar gasto fixo via formulário
+    document.querySelectorAll('.btn-edit-fixo').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const id = Number(this.dataset.id);
+            const gastoFixo = state.gastosFixos.find(gf => gf.id === id);
+            if (!gastoFixo) return;
+
+            // Preenche formulário com dados do item
+            document.getElementById('fixo-desc').value = gastoFixo.descricao;
+            document.getElementById('fixo-valor').value = gastoFixo.valor;
+            document.getElementById('fixo-cat').value = gastoFixo.categoria_id;
+            document.getElementById('fixo-dia').value = gastoFixo.dia_vencimento || 1;
+            document.getElementById('fixo-pagamento').value = gastoFixo.meio_pagamento || 'Automático';
+
+            // Altera botão de submit para "Atualizar" e armazena id
+            const submitBtn = document.querySelector('#form-gasto-fixo button[type="submit"]');
+            submitBtn.textContent = 'Atualizar';
+            submitBtn.dataset.editId = id;
+        });
+    });
+
+    // Submeter formulário de gasto fixo (criar ou atualizar)
+    const formFixo = document.getElementById('form-gasto-fixo');
+    const originalSubmit = formFixo.querySelector('button[type="submit"]').textContent;
+    formFixo.addEventListener('submit', async (e) => {
         e.preventDefault();
         const descricao = document.getElementById('fixo-desc').value;
         const valor = Number(document.getElementById('fixo-valor').value);
         const categoria_id = Number(document.getElementById('fixo-cat').value);
+        const dia_vencimento = Number(document.getElementById('fixo-dia').value);
+        const meio_pagamento = document.getElementById('fixo-pagamento').value;
 
-        await addGastoFixo({
-            descricao,
-            valor,
-            categoria_id,
-            recorrencia: 'mensal',
-            dia_vencimento: 1
-        });
+        const submitBtn = formFixo.querySelector('button[type="submit"]');
+        const editId = submitBtn.dataset.editId;
+
+        if (editId) {
+            // Atualizar existente
+            await updateGastoFixo(Number(editId), {
+                descricao,
+                valor,
+                categoria_id,
+                dia_vencimento,
+                meio_pagamento
+            });
+            // Limpa estado de edição
+            delete submitBtn.dataset.editId;
+            submitBtn.textContent = 'Adicionar Fixo';
+            formFixo.reset();
+        } else {
+            // Criar novo
+            await addGastoFixo({
+                descricao,
+                valor,
+                categoria_id,
+                recorrencia: 'mensal',
+                dia_vencimento,
+                meio_pagamento
+            });
+            formFixo.reset();
+        }
 
         await atualizarDados();
         renderApp();

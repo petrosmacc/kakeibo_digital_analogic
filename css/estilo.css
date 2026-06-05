@@ -88,8 +88,7 @@ body {
 }
 
 .app-header .subtitle {
-    font-style: italic;
-    color: #666;
+    color: #4A3B32;
     margin: 0;
 }
 
@@ -163,6 +162,7 @@ body {
 .metric-box .value {
     font-size: 1.1rem;
     font-weight: bold;
+    color: var(--text-color);
 }
 
 .color-save {
@@ -304,8 +304,8 @@ input:focus, select:focus, textarea:focus {
 }
 
 .date-label {
-    font-size: 0.75rem;
-    color: #888;
+    font-size: 0.8rem;
+    color: #555;
     display: block;
 }
 
@@ -476,4 +476,54 @@ input:focus, select:focus, textarea:focus {
     color: var(--text-color);
     opacity: 0.4;
     margin: 0 4px;
+}
+/* Tabela de Gastos Fixos */
+.tabela-fixos {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+}
+.tabela-fixos th,
+.tabela-fixos td {
+    padding: 10px 6px;
+    border-bottom: 1px solid #D4C5B5;
+    vertical-align: middle;
+    word-wrap: break-word;
+    font-size: 16px;
+}
+.tabela-fixos th {
+    font-weight: bold;
+    color: #4A3B32;
+    text-align: left;
+}
+.tabela-fixos th:nth-child(1) { width: 40px; text-align: center; }
+.tabela-fixos th:nth-child(2) { width: auto; }
+.tabela-fixos th:nth-child(3) { width: 50px; text-align: center; }
+.tabela-fixos th:nth-child(4) { width: 90px; }
+.tabela-fixos th:nth-child(5) { width: 90px; text-align: right; }
+.tabela-fixos th:nth-child(6) { width: 80px; text-align: center; }
+.tabela-fixos td:nth-child(1) { text-align: center; font-size: 20px; }
+.tabela-fixos td:nth-child(3) { text-align: center; }
+.tabela-fixos td:nth-child(5) { text-align: right; }
+.tabela-fixos td:nth-child(6) { text-align: center; white-space: nowrap; }
+.tabela-fixos .btn-edit-fixo {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    margin-right: 4px;
+}
+.tabela-fixos .btn-edit-fixo:hover {
+    background: #3a5348;
+}
+
+/* Select de pagamento no formulário de gastos fixos */
+#fixo-pagamento {
+    max-width: 200px;
+    font-size: 16px;
+    padding: 6px;
 }
