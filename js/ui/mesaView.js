@@ -51,11 +51,11 @@ export function renderMesa(state, metricas) {
                 <div class="grid-metrics">
                     <div class="metric-box">
                         <span class="label">Renda Mensal</span>
-                        <span class="value">R$ ${state.config.renda_mensal.toFixed(2)}</span>
+                        <span class="value editable-value" data-key="renda_mensal" data-label="Renda">R$ ${state.config.renda_mensal.toFixed(2)}</span>
                     </div>
                     <div class="metric-box">
                         <span class="label">Meta de Poupança</span>
-                        <span class="value color-save">R$ ${state.config.meta_poupanca.toFixed(2)}</span>
+                        <span class="value editable-value color-save" data-key="meta_poupanca" data-label="Poupança">R$ ${state.config.meta_poupanca.toFixed(2)}</span>
                     </div>
                     <div class="metric-box">
                         <span class="label">Gastos Fixos</span>
@@ -79,82 +79,71 @@ export function renderMesa(state, metricas) {
                 </div>
             </section>
 
-            <!-- Formulário de Configurações -->
-            <section class="card">
-                <h2>Planejamento Mensal</h2>
-                <form id="form-config" class="flex-form">
-                    <div class="form-group">
-                        <label for="renda">Renda Mensal (R$)</label>
-                        <input type="number" id="renda" step="0.01" value="${state.config.renda_mensal}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="poupanca">Meta de Poupança (R$)</label>
-                        <input type="number" id="poupanca" step="0.01" value="${state.config.meta_poupanca}" required>
-                    </div>
-                    <button type="submit" class="btn">Salvar Planejamento</button>
-                </form>
+
+            <!-- Adicionar Gasto Diário (colapsável) -->
+            <section class="card collapsible">
+                <h2 class="collapsible-header" data-target="gasto-content">📝 Registrar Gasto Diário</h2>
+                <div id="gasto-content" class="collapsible-content" style="display:none;">
+                    <form id="form-gasto">
+                        <div class="grid-form">
+                            <div class="form-group">
+                                <label for="gasto-valor">Valor (R$)</label>
+                                <input type="number" id="gasto-valor" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gasto-categoria">Categoria Kakeibo</label>
+                                <select id="gasto-categoria" required>
+                                    ${state.categorias.map(c => `<option value="${c.id}">${c.icone} ${c.nome}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="gasto-data">Data</label>
+                                <input type="date" id="gasto-data" value="${new Date().toISOString().split('T')[0]}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="gasto-nota">Nota / Descrição</label>
+                                <input type="text" id="gasto-nota" placeholder="Ex: Almoço de terça" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-block">Adicionar Gasto</button>
+                    </form>
+                </div>
             </section>
 
-            <!-- Adicionar Gasto Diário -->
-            <section class="card">
-                <h2>Registrar Gasto Diário</h2>
-                <form id="form-gasto">
-                    <div class="grid-form">
+            <!-- Gastos Fixos (colapsável) -->
+            <section class="card collapsible">
+                <h2 class="collapsible-header" data-target="fixo-content">⚙️ Gastos Fixos</h2>
+                <div id="fixo-content" class="collapsible-content" style="display:none;">
+                    <form id="form-gasto-fixo" class="flex-form">
                         <div class="form-group">
-                            <label for="gasto-valor">Valor (R$)</label>
-                            <input type="number" id="gasto-valor" step="0.01" required>
+                            <label for="fixo-desc">Descrição</label>
+                            <input type="text" id="fixo-desc" required>
                         </div>
                         <div class="form-group">
-                            <label for="gasto-categoria">Categoria Kakeibo</label>
-                            <select id="gasto-categoria" required>
+                            <label for="fixo-valor">Valor (R$)</label>
+                            <input type="number" id="fixo-valor" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fixo-cat">Categoria</label>
+                            <select id="fixo-cat" required>
                                 ${state.categorias.map(c => `<option value="${c.id}">${c.icone} ${c.nome}</option>`).join('')}
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label for="gasto-data">Data</label>
-                            <input type="date" id="gasto-data" value="${new Date().toISOString().split('T')[0]}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="gasto-nota">Nota / Descrição</label>
-                            <input type="text" id="gasto-nota" placeholder="Ex: Almoço de terça" required>
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-block">Adicionar Gasto</button>
-                </form>
-            </section>
+                        <button type="submit" class="btn">Adicionar Fixo</button>
+                    </form>
 
-            <!-- Gastos Fixos -->
-            <section class="card">
-                <h2>Gastos Fixos Mensais</h2>
-                <form id="form-gasto-fixo" class="flex-form">
-                    <div class="form-group">
-                        <label for="fixo-desc">Descrição</label>
-                        <input type="text" id="fixo-desc" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fixo-valor">Valor (R$)</label>
-                        <input type="number" id="fixo-valor" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="fixo-cat">Categoria</label>
-                        <select id="fixo-cat" required>
-                            ${state.categorias.map(c => `<option value="${c.id}">${c.icone} ${c.nome}</option>`).join('')}
-                        </select>
-                    </div>
-                    <button type="submit" class="btn">Adicionar Fixo</button>
-                </form>
-
-                <ul class="list-items">
-                    ${state.gastosFixos.map(gf => {
-                        const cat = state.categorias.find(c => c.id === Number(gf.categoria_id));
-                        return `
-                            <li class="flex-between">
-                                <span>${cat ? cat.icone : '❓'} <strong>${gf.descricao}</strong></span>
-                                <span>R$ ${Number(gf.valor).toFixed(2)} <button class="btn-delete" data-id="${gf.id}" data-type="fixo">×</button></span>
-                            </li>
-                        `;
-                    }).join('')}
-                </ul>
+                    <ul class="list-items">
+                        ${state.gastosFixos.map(gf => {
+                            const cat = state.categorias.find(c => c.id === Number(gf.categoria_id));
+                            return `
+                                <li class="flex-between">
+                                    <span>${cat ? cat.icone : '❓'} <strong>${gf.descricao}</strong></span>
+                                    <span>R$ ${Number(gf.valor).toFixed(2)} <button class="btn-delete" data-id="${gf.id}" data-type="fixo">×</button></span>
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
+                </div>
             </section>
 
             <!-- Gastos da Semana -->
@@ -182,20 +171,66 @@ export function renderMesa(state, metricas) {
 }
 
 export function setupMesaListeners(state, atualizarDados, renderApp) {
-    // Salvar Configurações
-    document.getElementById('form-config').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const renda = Number(document.getElementById('renda').value);
-        const poupanca = Number(document.getElementById('poupanca').value);
-        
-        await setConfig('renda_mensal', renda);
-        await setConfig('meta_poupanca', poupanca);
-        
-        state.config.renda_mensal = renda;
-        state.config.meta_poupanca = poupanca;
-        
-        await atualizarDados();
-        renderApp();
+    // Edição inline de valores clicáveis
+    document.querySelectorAll('.editable-value').forEach(el => {
+        el.addEventListener('click', function(e) {
+            // Se já estiver editando, ignora
+            if (this.querySelector('input')) return;
+            const key = this.dataset.key;
+            const label = this.dataset.label;
+            const currentValue = state.config[key];
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.step = '0.01';
+            input.value = currentValue;
+            input.className = 'inline-edit-input';
+            this.innerHTML = '';
+            this.appendChild(input);
+            input.focus();
+            input.select();
+
+            const save = async () => {
+                const newValue = Number(input.value);
+                if (!isNaN(newValue) && newValue !== currentValue) {
+                    await setConfig(key, newValue);
+                    state.config[key] = newValue;
+                    await atualizarDados();
+                    renderApp();
+                    // Mostra confirmação
+                    const confirmMsg = document.createElement('span');
+                    confirmMsg.className = 'confirm-msg';
+                    confirmMsg.textContent = `${label} atualizada`;
+                    const parent = this.parentElement;
+                    parent.appendChild(confirmMsg);
+                    setTimeout(() => {
+                        if (confirmMsg.parentElement) confirmMsg.remove();
+                    }, 2000);
+                } else {
+                    // Re-renderiza para restaurar valor original
+                    renderApp();
+                }
+            };
+
+            input.addEventListener('blur', save);
+            input.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    input.blur();
+                }
+            });
+        });
+    });
+
+    // Colapsáveis
+    document.querySelectorAll('.collapsible-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const targetId = this.dataset.target;
+            const content = document.getElementById(targetId);
+            if (content) {
+                const isVisible = content.style.display !== 'none';
+                content.style.display = isVisible ? 'none' : 'block';
+            }
+        });
     });
 
     // Adicionar Gasto Diário
