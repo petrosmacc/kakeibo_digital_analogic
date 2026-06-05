@@ -1,2 +1,4 @@
 .env
 .aider*
+__pycache__/
+split_eia.py
